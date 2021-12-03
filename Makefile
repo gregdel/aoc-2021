@@ -5,10 +5,10 @@ LDFLAGS =
 %.o: %.c
 	$(CC) -o $@ $< $(CFLAGS)
 
-puzzle-1: puzzle-1.o
+puzzle-1-1: puzzle-1-1.o
 	$(CC) -o $@ $< $(LDFLAGS)
 
-puzzle-2: puzzle-2.o
+puzzle-1-2: puzzle-1-2.o
 	$(CC) -o $@ $< $(LDFLAGS)
 
 tags:
@@ -16,3 +16,6 @@ tags:
 
 clean:
 	rm *.o tags
+	find . -maxdepth 1 -type f -executable -delete
+
+.PHONY: clean tags

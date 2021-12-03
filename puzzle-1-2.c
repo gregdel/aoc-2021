@@ -8,7 +8,7 @@ int main() {
 	size_t len = 0;
 	size_t read;
 
-	file = fopen("inputs/puzzle-1", "r");
+	file = fopen("inputs/input-1", "r");
 	if (file == NULL) {
 		printf("Failed to open the input file");
 		return 1;
