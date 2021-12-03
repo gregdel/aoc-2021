@@ -11,6 +11,18 @@ puzzle-1-1: puzzle-1-1.o
 puzzle-1-2: puzzle-1-2.o
 	$(CC) -o $@ $< $(LDFLAGS)
 
+puzzle-2-1: puzzle-2-1.o
+	$(CC) -o $@ $< $(LDFLAGS)
+
+puzzle-2-2: puzzle-2-2.o
+	$(CC) -o $@ $< $(LDFLAGS)
+
+puzzle-3-1: puzzle-3-1.o
+	$(CC) -o $@ $< $(LDFLAGS)
+
+puzzle-3-2: puzzle-3-2.o
+	$(CC) -o $@ $< $(LDFLAGS)
+
 tags:
 	ctags -R /usr/include/microhttpd.h .
 
