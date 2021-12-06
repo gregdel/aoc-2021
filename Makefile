@@ -26,6 +26,9 @@ puzzle-3-2: puzzle-3-2.o
 puzzle-4-1: puzzle-4-1.o
 	$(CC) -o $@ $< $(LDFLAGS)
 
+puzzle-4-2: puzzle-4-2.o
+	$(CC) -o $@ $< $(LDFLAGS)
+
 tags:
 	ctags -R /usr/include/microhttpd.h .
 
