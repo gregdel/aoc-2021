@@ -6,11 +6,6 @@
 
 void trace_segment(int grid[GRID_SIZE][GRID_SIZE],
 		   int x1, int y1, int x2, int y2) {
-
-
-
-	printf("(%d,%d) -> (%d,%d)\n", x1, y1, x2, y2);
-
 	int start, steps;
 
 	if (x1 - x2 == 0) {
@@ -19,8 +14,6 @@ void trace_segment(int grid[GRID_SIZE][GRID_SIZE],
 		start = (y1 < y2) ? y1 : y2;
 		for (int i = start; i <= start + steps; i++)
 			grid[x1][i]++;
-
-		/* printf("x=%d\n y from %d to %d+%d\n", x1, start, start, steps); */
 	} else {
 		int a = (y1 - y2) / (x1 - x2);
 		int b = y1 - (a * x1);
@@ -28,12 +21,13 @@ void trace_segment(int grid[GRID_SIZE][GRID_SIZE],
 		steps = (x1 - x2 < 0) ? x2 - x1 : x1 - x2;
 		start = (x1 < x2) ? x1 : x2;
 
+		if (y1 != y2)
+			return;
+
 		for (int i = start; i <= start + steps; i++) {
 			int y = a * i + b;
 			grid[i][y]++;
 		}
-
-		/* printf("y=%dx + %d\n", a, b); */
 	}
 }
 
@@ -57,8 +51,13 @@ int count_intersections(int grid[GRID_SIZE][GRID_SIZE], int number) {
 	return count;
 }
 
-int main() {
-	FILE *file = fopen("inputs/input-5", "r");
+int main(int argc, char *argv[]) {
+	if (argc != 2) {
+		printf("Missing input file");
+		return 1;
+	}
+
+	FILE *file = fopen(argv[1], "r");
 	if (file == NULL) {
 		printf("Failed to open the input file");
 		return 1;
@@ -73,8 +72,7 @@ int main() {
 
 	int number = 2;
 	int count = count_intersections(grid, number);
-	printf("Intersections > %d: %d\n", number, count);
-	/* print_grid(grid); */
+	printf("%d\n", count);
 
 	return 0;
 }

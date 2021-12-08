@@ -2,13 +2,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main() {
+int main(int argc, char *argv[]) {
 	FILE *file;
 	char *line = NULL;
 	size_t len = 0;
 	size_t read;
 
-	file = fopen("inputs/input-1", "r");
+	if (argc != 2) {
+		printf("Missing input file");
+		return 1;
+	}
+
+	file = fopen(argv[1], "r");
 	if (file == NULL) {
 		printf("Failed to open the input file");
 		return 1;
@@ -53,7 +58,7 @@ int main() {
 		n_1 = n;
 	}
 
-	printf("The number of increasing values is %d\n", counter);
+	printf("%d\n", counter);
 
 	free(line);
 	fclose(file);

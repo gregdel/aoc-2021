@@ -4,8 +4,13 @@
 
 #define MAX_LIFE_SPAN 9
 
-int main() {
-	FILE *file = fopen("inputs/input-6", "r");
+int main(int argc, char *argv[]) {
+	if (argc != 2) {
+		printf("Missing input file");
+		return 1;
+	}
+
+	FILE *file = fopen(argv[1], "r");
 	if (file == NULL) {
 		printf("Failed to open the input file");
 		return 1;
@@ -14,7 +19,12 @@ int main() {
 	// Group fishes by age
 	uint64_t ages[MAX_LIFE_SPAN] = {0};
 	int i;
-	while (fscanf(file, "%d", &i) > 0) ages[i]++;
+	while ((i = fgetc(file)) != EOF) {
+		if (i == ',') continue;
+		i = i - '0';
+		if (i < 0 || i > 9) break;
+		ages[i]++;
+	}
 
 	int days = 256;
 	for (int day = 0; day < days; day++) {
@@ -32,11 +42,14 @@ int main() {
 				ages[8] += current;
 			}
 		}
+
 	}
 
 	uint64_t sum = 0;
-	for (int i = 0; i < MAX_LIFE_SPAN; i++) sum += ages[i];
+	for (int i = 0; i < MAX_LIFE_SPAN; i++)
+		sum += ages[i];
 
-	printf("Number of fishes: %ld\n", sum);
+	printf("%ld\n", sum);
+
 	return 0;
 }

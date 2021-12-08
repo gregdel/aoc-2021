@@ -119,17 +119,11 @@ int parse_numbers(char *input, int output[]) {
 	return pos;
 }
 
-int parse_input(int numbers[],
+int parse_input(FILE *file,
+		int numbers[],
 		int *number_count,
 		struct bingo_board boards[],
 		int *board_count) {
-
-
-	FILE *file = fopen("inputs/input-4", "r");
-	if (file == NULL) {
-		printf("Failed to open the input file");
-		return 1;
-	}
 
 
 	char numbers_raw[1024];
@@ -167,7 +161,18 @@ int parse_input(int numbers[],
 	return 0;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+	if (argc != 2) {
+		printf("Missing input file");
+		return 1;
+	}
+
+	FILE *file = fopen(argv[1], "r");
+	if (file == NULL) {
+		printf("Failed to open the input file");
+		return 1;
+	}
+
 	int numbers_count, board_count;
 	int numbers[BINGO_NUMBERS_MAX];
 	struct bingo_board boards[BINGO_BOARD_COUNT_MAX];
@@ -175,24 +180,17 @@ int main() {
 		init_board(&boards[i]);
 	}
 
-	if (parse_input(numbers, &numbers_count, boards, &board_count) != 0) {
+	if (parse_input(file, numbers, &numbers_count, boards, &board_count) != 0) {
 		printf("Failed to parse input...\n");
 		return 1;
 	}
 
-	printf("Number of inputs: %d\n", numbers_count);
-	printf("Number of boards: %d\n", board_count);
 	for (int n = 0; n < numbers_count; n++) {
 		for (int i = 0; i < board_count; i++) {
 			mark_board(&boards[i], numbers[n]);
 			if (is_complete(&boards[i])) {
-				printf("Board %d is complete !\n", i);
-				print_board(&boards[i]);
-
 				int sum = unmarked_sum(&boards[i]);
-				printf("Sum: %d\n", sum);
-				printf("Result: %d\n", sum * numbers[n]);
-
+				printf("%d\n", sum * numbers[n]);
 				return 0;
 			}
 		}
