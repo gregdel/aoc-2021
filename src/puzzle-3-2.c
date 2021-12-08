@@ -14,7 +14,7 @@ void print_number(uint16_t n, int max) {
 
 	for (int i = 0; i < max; i++) {
 		int pos = (max - 1) - i;
-		result[pos] = (((n & (1<<i)) >> i) == 1) ? '1' : '0';
+		result[pos] = (((n >> i) & 1) == 1) ? '1' : '0';
 	}
 
 	printf("%d -> %s\n", n, result);
@@ -26,7 +26,7 @@ int count_number_of_ones(uint16_t numbers[], int lines, int pos) {
 		if (numbers[i] == 0)
 			continue;
 
-		if (((numbers[i] & (1 << pos)) >> pos) == 1)
+		if (((numbers[i] >> pos) & 1) == 1)
 			count++;
 	}
 
