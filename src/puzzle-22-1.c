@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define unlikely(x) __builtin_expect((x),0)
+
 #define MIN(a,b) ((a)<(b)?(a):(b))
 #define MAX(a,b) ((a)>(b)?(a):(b))
 #define ABS(x)   ((x)<0?-(x):(x))
@@ -49,14 +51,10 @@ bool contains(struct box *out, struct box *in) {
 }
 
 bool overlap(struct box *b1, struct box *b2) {
-	struct box b;
-	b.x0 = MAX(b1->x0, b2->x0);
-	b.x1 = MIN(b1->x1, b2->x1);
-	b.y0 = MAX(b1->y0, b2->y0);
-	b.y1 = MIN(b1->y1, b2->y1);
-	b.z0 = MAX(b1->z0, b2->z0);
-	b.z1 = MIN(b1->z1, b2->z1);
-	return !((b.x0 > b.x1) || (b.y0 > b.y1) || (b.z0 > b.z1));
+	if (MAX(b1->x0, b2->x0) > MIN(b1->x1, b2->x1)) return false;
+	if (MAX(b1->y0, b2->y0) > MIN(b1->y1, b2->y1)) return false;
+	if (MAX(b1->z0, b2->z0) > MIN(b1->z1, b2->z1)) return false;
+	return true;
 }
 
 int merge(struct box *b1, struct box *b2, struct box boxes[7]) {
@@ -151,45 +149,41 @@ int merge(struct box *b1, struct box *b2, struct box boxes[7]) {
 
 void reduce(struct box boxes[MAX_BOXES], int *count) {
 	if (*count == 1) return;
-	int new_boxes_added = 1;
-	while (new_boxes_added > 0) {
-		new_boxes_added = 0;
-		for (int i = 0; i < *count; i++) {
-			for (int j = 0; j < *count; j++) {
-				if (i == j) continue;
-				if (!boxes[i].active) continue;
-				if (!boxes[j].active) continue;
 
-				// Boxes do not overlap
-				if (!overlap(&boxes[i], &boxes[j])) continue;
+	int first_j = *count - 1;
+	for (int i = 0; i < *count - 1; i++) {
+		for (int j = MAX(i + 1, first_j); j < *count; j++) {
+			if (!boxes[i].active) continue;
+			if (!boxes[j].active) continue;
 
-				// Box j is contained in i
-				if ((boxes[i].state == boxes[j].state) &&
-				    contains(&boxes[i], &boxes[j])) {
+			if (!boxes[i].state && !boxes[j].state) continue;
+
+			// Boxes do not overlap
+			if (!unlikely(overlap(&boxes[i], &boxes[j]))) continue;
+
+			// Box j is contained in i
+			if (boxes[i].state == boxes[j].state) {
+				if(unlikely(contains(&boxes[i], &boxes[j]))) {
 					boxes[j].active = false;
 					continue;
 				}
-
-				if ((boxes[i].state == boxes[j].state) &&
-				    contains(&boxes[j], &boxes[i])) {
+				if (unlikely(contains(&boxes[j], &boxes[i]))) {
 					boxes[i].active = false;
 					continue;
 				}
-
-				// Get the new boxes
-				struct box new_boxes[7];
-				int new = merge(&boxes[i], &boxes[j], new_boxes);
-				if (new == 0) continue;
-
-				memcpy(&boxes[*count], new_boxes,
-				       new * sizeof(struct box));
-				*count = *count + new;
-				new_boxes_added += new;
-
-				boxes[i].active = false;
-				boxes[j].active = false;
-				continue;
 			}
+
+			// Get the new boxes
+			struct box new_boxes[7];
+			int new = merge(&boxes[i], &boxes[j], new_boxes);
+
+			memcpy(&boxes[*count], new_boxes,
+			       new * sizeof(struct box));
+			*count = *count + new;
+
+			boxes[i].active = false;
+			boxes[j].active = false;
+			continue;
 		}
 	}
 
@@ -198,14 +192,11 @@ void reduce(struct box boxes[MAX_BOXES], int *count) {
 	for (int i = 0; i < *count; i++) {
 		if (!boxes[i].active) continue;
 		if (!boxes[i].state) continue;
-		// print_box(&boxes[i]);
 		memcpy(&tmp[new_count++], &boxes[i],
 		       sizeof(struct box));
 	}
 	memcpy(boxes, tmp, new_count * sizeof(struct box));
 	*count = new_count;
-
-	return;
 }
 
 int main(int argc, char *argv[]) {
@@ -248,7 +239,7 @@ int main(int argc, char *argv[]) {
 
 	uint64_t boxes_on = 0;
 	for (int i = 0; i < box_count; i++) {
-		boxes_on = boxes_on + size(&boxes[i]);
+		boxes_on += size(&boxes[i]);
 	}
 	printf("%ld\n", boxes_on);
 	return 0;
