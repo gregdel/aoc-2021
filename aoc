@@ -44,8 +44,7 @@ _run() {
 	_compile "$name"
 
 	expected_result=$(cat "$result_file")
-	bin/"$name" "$input_file" >/dev/null
-	result=$(bin/"$name" "$input_file")
+	result=$(bin/"$name" "$input_file" | tee)
 
 	if [ "$result" = "$expected_result" ]; then
 		echo "Results match ! Result: $result"
